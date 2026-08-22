@@ -235,3 +235,18 @@ def test_health_endpoint_vercel_fallback(client, monkeypatch):
     embedding_service._MODEL_LOAD_ATTEMPTED = False
     embedding_service._MODEL_INSTANCE = None
     embedding_service._IS_MODEL_AVAILABLE = False
+
+
+def test_vercel_max_content_length_limit(monkeypatch):
+    """Verify app sets 4MB MAX_CONTENT_LENGTH on Vercel environment vs 16MB on local."""
+    from app import create_app
+
+    monkeypatch.delenv("MAX_CONTENT_LENGTH", raising=False)
+    monkeypatch.setenv("VERCEL", "1")
+    app_vercel = create_app()
+    assert app_vercel.config["MAX_CONTENT_LENGTH"] == 4 * 1024 * 1024
+
+    monkeypatch.delenv("VERCEL", raising=False)
+    monkeypatch.delenv("MAX_CONTENT_LENGTH", raising=False)
+    app_local = create_app()
+    assert app_local.config["MAX_CONTENT_LENGTH"] == 16 * 1024 * 1024

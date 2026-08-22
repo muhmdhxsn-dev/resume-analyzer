@@ -51,11 +51,13 @@ def create_app(test_config=None):
 
     # Configuration loading from environment variables
     env_debug = os.getenv("FLASK_DEBUG", "0").lower() in ("1", "true", "yes")
-    default_upload_dir = tempfile.gettempdir() if os.getenv("VERCEL") else os.path.join(app.root_path, "uploads")
+    is_vercel = bool(os.getenv("VERCEL"))
+    default_upload_dir = tempfile.gettempdir() if is_vercel else os.path.join(app.root_path, "uploads")
+    default_max_bytes = 4 * 1024 * 1024 if is_vercel else 16 * 1024 * 1024  # 4 MB on Vercel, 16 MB on local/Gunicorn
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev-secret-key-resume-analyzer"),
         UPLOAD_FOLDER=os.getenv("UPLOAD_FOLDER", default_upload_dir),
-        MAX_CONTENT_LENGTH=int(os.getenv("MAX_CONTENT_LENGTH", 16 * 1024 * 1024)),  # 16 MB max limit
+        MAX_CONTENT_LENGTH=int(os.getenv("MAX_CONTENT_LENGTH", default_max_bytes)),
         DEBUG=env_debug
     )
 
