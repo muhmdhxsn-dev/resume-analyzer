@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer & Job Match Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Navigation Header -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="{{ url_for('index') }}" class="nav-brand">
+                    <span class="brand-icon">📄</span>
+                    <span class="brand-name">Resume Analyzer</span>
+                    <span class="brand-tag">PRO</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#uploadCard" class="nav-link">Analyze Resume</a></li>
+                    <li><a href="#howItWorks" class="nav-link">How It Works</a></li>
+                    <li><a href="#features" class="nav-link">Features</a></li>
+                    <li><a href="#uploadCard" class="nav-btn">Get Started</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Body Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-pill">
+                    <span>✨ Deterministic AI Career Intelligence</span>
+                </div>
+                <h1 class="hero-title">Turn Your Resume Into Your Next Opportunity</h1>
+                <p class="hero-subtitle">
+                    Analyze your resume, discover its strengths, identify key areas for improvement, and understand how well it communicates your professional experience to recruiters.
+                </p>
+                <div class="hero-cta-group">
+                    <a href="#uploadCard" id="analyzeCtaBtn" class="btn btn-primary">Analyze My Resume</a>
+                </div>
+            </section>
+
+            <!-- Flash Alerts -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alerts-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                <span class="alert-icon">
+                                    {% if category == 'success' %}✓{% else %}⚠️{% endif %}
+                                </span>
+                                <span class="alert-message">{{ message }}</span>
+                                <button type="button" class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Upload Card Component -->
+            <div class="card upload-card" id="uploadCard">
+                <div class="upload-card-header">
+                    <h2>Upload Your Resume</h2>
+                    <p>Select or drop your document below to generate an instant 100-point audit.</p>
+                </div>
+
+                <form id="uploadForm" action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-content" id="dropZonePrompt">
+                            <div class="upload-icon-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                            </div>
+                            <p class="drop-zone-title">Drop your resume here</p>
+                            <p class="drop-zone-subtitle">or click to browse from your device</p>
+                            <span class="file-limits-badge">Supported Formats: PDF or DOCX (Max 16MB)</span>
+                        </div>
+
+                        <!-- Selected File Preview -->
+                        <div class="file-preview-card hidden" id="filePreview">
+                            <div class="file-info-group">
+                                <span class="file-type-icon" id="fileIcon">📄</span>
+                                <div class="file-meta-details">
+                                    <span class="file-name-text" id="fileName">resume.pdf</span>
+                                    <span class="file-size-text" id="fileSize">0 KB</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-file" id="btnRemoveFile" title="Remove file">&times;</button>
+                        </div>
+
+                        <input type="file" name="resume" id="resumeInput" accept=".pdf,.docx" class="file-input">
+                    </div>
+
+                    <!-- Job Description Textarea (Optional) -->
+                    <div class="jd-input-container">
+                        <label for="jobDescriptionInput" class="jd-label">
+                            Target Job Description <span class="jd-optional-tag">(Optional — for Resume-to-Job Matching & Evidence Matrix)</span>
+                        </label>
+                        <textarea 
+                            name="job_description" 
+                            id="jobDescriptionInput" 
+                            class="jd-textarea" 
+                            rows="4" 
+                            placeholder="Paste target job description text here (e.g. required skills, qualifications, responsibilities) to calculate Job Match Score and Evidence Gaps..."
+                        ></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-block" id="btnSubmit" disabled>
+                            Analyze Resume
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading State Card -->
+            <div class="card loading-card hidden" id="loadingCard">
+                <div class="loading-spinner-ring"></div>
+                <h3 class="loading-title">Analyzing Your Resume...</h3>
+                <div class="loading-steps-list">
+                    <div class="loading-step-item active" id="step1">
+                        <span>●</span> Reading document structure & text
+                    </div>
+                    <div class="loading-step-item" id="step2">
+                        <span>○</span> Detecting canonical sections & formatting
+                    </div>
+                    <div class="loading-step-item" id="step3">
+                        <span>○</span> Extracting technical skills & catalog matching
+                    </div>
+                    <div class="loading-step-item" id="step4">
+                        <span>○</span> Calculating scores & generating recommendations
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Grid Section -->
+            <section class="features-section" id="features">
+                <h2 class="features-section-title">Comprehensive Resume Intelligence</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Instant Structure Audit</h3>
+                        <p>Automatically detects summary, skills, experience, education, projects, and certifications across PDF & DOCX resumes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Job Description Match</h3>
+                        <p>Compares target role requirements against your resume, categorizing required vs preferred skills and match gaps.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Skill Evidence Matrix</h3>
+                        <p>Evaluates whether your skills are supported by concrete experience and project proof or listed as isolated keywords.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Resume Analyzer App &bull; Modern SaaS Frontend &bull; Phase 10 Production UI</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

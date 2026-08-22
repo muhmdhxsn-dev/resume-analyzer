@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis Results - Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Navigation Header -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="{{ url_for('index') }}" class="nav-brand">
+                    <span class="brand-icon">📄</span>
+                    <span class="brand-name">Resume Analyzer</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="{{ url_for('index') }}" class="nav-btn">&larr; Analyze Another Resume</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            {% if not result or result.error %}
+                <!-- Empty or Error State Card -->
+                <div class="card empty-state-card">
+                    <div class="empty-state-icon">⚠️</div>
+                    <h2>Analysis Error</h2>
+                    <p>{{ result.error if result and result.error else "No resume data available. Please upload a resume to view analysis results." }}</p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Upload Resume</a>
+                </div>
+            {% else %}
+
+            <!-- Results Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title-group">
+                    <h1>Resume Analysis</h1>
+                    <p class="dashboard-subtitle">Here's how your resume performs across quality, structure, and job requirements.</p>
+                    <div class="dashboard-meta-pills">
+                        <span class="meta-pill">📄 {{ result.filename }}</span>
+                        <span class="meta-pill">FORMAT: {{ result.file_type | upper }}</span>
+                        {% if result.page_count %}
+                            <span class="meta-pill">PAGES: {{ result.page_count }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">&larr; Upload New Resume</a>
+                </div>
+            </div>
+
+            <!-- Scores Hero Grid (Quality Score + Job Match Score + Evidence Rating) -->
+            <div class="scores-hero-grid">
+                <!-- Quality Score Card -->
+                <div class="score-card-primary">
+                    <div class="score-ring-wrapper">
+                        {% set score = result.analysis.score | default(0) %}
+                        {% set dash_offset = 283 - (283 * score / 100) %}
+                        <svg class="score-ring-svg" viewBox="0 0 100 100">
+                            <circle class="score-ring-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="score-ring-fill {% if score >= 80 %}ring-high{% elif score >= 60 %}ring-mid{% else %}ring-low{% endif %}" 
+                                    cx="50" cy="50" r="45" 
+                                    stroke-dasharray="283" 
+                                    stroke-dashoffset="{{ dash_offset }}">
+                            </circle>
+                        </svg>
+                        <div class="score-ring-text-container">
+                            <span class="score-ring-number">{{ score }}</span>
+                            <span class="score-ring-total">/ 100</span>
+                        </div>
+                    </div>
+                    <div class="score-info-box">
+                        <h3>Resume Quality Score</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Structure, impact, & formatting score</p>
+                        <span class="score-verdict-badge {% if score >= 80 %}badge-high{% elif score >= 60 %}badge-mid{% else %}badge-low{% endif %}">
+                            {% if score >= 80 %}
+                                🎯 Strong Resume
+                            {% elif score >= 60 %}
+                                ⚖️ Good Foundation
+                            {% else %}
+                                ⚠️ Needs Improvement
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Job Match Score Card (If Job Description provided) -->
+                {% if result.job_match and result.job_match.has_job_description %}
+                <div class="score-card-primary">
+                    <div class="score-ring-wrapper">
+                        {% set match_score = result.job_match.job_match_score | default(0) %}
+                        <svg class="score-ring-svg" viewBox="0 0 100 100">
+                            <circle class="score-ring-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="score-ring-fill {% if match_score >= 80 %}ring-high{% elif match_score >= 50 %}ring-mid{% else %}ring-low{% endif %}" 
+                                    cx="50" cy="50" r="45" 
+                                    stroke-dasharray="283" 
+                                    stroke-dashoffset="{{ 283 - (283 * match_score / 100) }}">
+                            </circle>
+                        </svg>
+                        <div class="score-ring-text-container">
+                            <span class="score-ring-number">{{ match_score }}</span>
+                            <span class="score-ring-total">/ 100</span>
+                        </div>
+                    </div>
+                    <div class="score-info-box">
+                        <h3>Job Match Score</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Alignment with job description</p>
+                        <span class="score-verdict-badge {% if match_score >= 80 %}badge-high{% elif match_score >= 50 %}badge-mid{% else %}badge-low{% endif %}">
+                            {% if match_score >= 80 %}
+                                🎯 Excellent Match
+                            {% elif match_score >= 50 %}
+                                ⚖️ Moderate Match
+                            {% else %}
+                                ⚠️ Low Alignment
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Skill Evidence Rating Card -->
+                {% if result.evidence_analysis %}
+                <div class="score-card-primary">
+                    <div class="score-ring-wrapper">
+                        {% set ev_score = result.evidence_analysis.evidence_strength_score | default(0) %}
+                        <svg class="score-ring-svg" viewBox="0 0 100 100">
+                            <circle class="score-ring-bg" cx="50" cy="50" r="45"></circle>
+                            <circle class="score-ring-fill {% if ev_score >= 80 %}ring-high{% elif ev_score >= 50 %}ring-mid{% else %}ring-low{% endif %}" 
+                                    cx="50" cy="50" r="45" 
+                                    stroke-dasharray="283" 
+                                    stroke-dashoffset="{{ 283 - (283 * ev_score / 100) }}">
+                            </circle>
+                        </svg>
+                        <div class="score-ring-text-container">
+                            <span class="score-ring-number">{{ ev_score }}%</span>
+                            <span class="score-ring-total">Rating</span>
+                        </div>
+                    </div>
+                    <div class="score-info-box">
+                        <h3>Skill Evidence Analysis</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Skill application depth</p>
+                        <span class="score-verdict-badge {% if ev_score >= 80 %}badge-high{% elif ev_score >= 50 %}badge-mid{% else %}badge-low{% endif %}">
+                            {% if ev_score >= 80 %}
+                                🟢 Strong Proof
+                            {% elif ev_score >= 50 %}
+                                🟡 Moderate Evidence
+                            {% else %}
+                                🟠 Weak Proof
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Executive Summary Highlight (If summary section exists) -->
+            {% if result.sections and result.sections['summary'] %}
+            <div class="summary-quote-card">
+                <div class="summary-quote-header">Executive Summary Preview</div>
+                <div class="summary-quote-text">"{{ result.sections['summary'] | truncate(280) }}"</div>
+            </div>
+            {% endif %}
+
+            <!-- Category Score Breakdown Grid -->
+            <div class="card category-breakdown-card">
+                <h2>Category Score Breakdown</h2>
+                <div class="category-bars-grid">
+                    {% if result.analysis and result.analysis.categories %}
+                        {% for cat_key, cat_data in result.analysis.categories.items() %}
+                            <div class="cat-bar-item">
+                                <div class="cat-bar-header">
+                                    <span class="cat-bar-name">{{ cat_key | replace('_', ' ') | title }}</span>
+                                    <span class="cat-bar-score">{{ cat_data.score }} / {{ cat_data.max_score }}</span>
+                                </div>
+                                <div class="cat-bar-bg">
+                                    {% set pct = (cat_data.score / cat_data.max_score * 100) if cat_data.max_score > 0 else 0 %}
+                                    <div class="cat-bar-fill" style="width: {{ pct }}%;"></div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Strengths & Areas to Improve Grid -->
+            <div class="feedback-grid">
+                <!-- Strengths Card -->
+                <div class="card feedback-card">
+                    <h3 style="color: var(--success-text);">
+                        <span>✓</span> Key Resume Strengths
+                    </h3>
+                    <ul class="feedback-list feedback-strengths">
+                        {% if result.analysis and result.analysis.strengths %}
+                            {% for strength in result.analysis.strengths %}
+                                <li>{{ strength }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>Resume contains basic structural sections.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Areas to Improve Card -->
+                <div class="card feedback-card">
+                    <h3 style="color: var(--warning-text);">
+                        <span>⚠️</span> Priority Improvements
+                    </h3>
+                    <ul class="feedback-list feedback-warnings">
+                        {% if result.analysis and result.analysis.warnings %}
+                            {% for warning in result.analysis.warnings %}
+                                <li>{{ warning }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No major structural warnings detected.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Prioritized Actionable Improvement Plan (Phase 7 & 8 Recommendations) -->
+            {% if result.recommendation_plan and result.recommendation_plan.all_recommendations %}
+            <div class="card">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem;">Actionable Recommendation Plan</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    {% for rec in result.recommendation_plan.all_recommendations %}
+                        <div class="card rec-card-item {% if rec.priority == 'HIGH' %}rec-card-high{% elif rec.priority == 'MEDIUM' %}rec-card-medium{% else %}rec-card-low{% endif %}">
+                            <div class="rec-card-header">
+                                <span class="rec-prio-badge {% if rec.priority == 'HIGH' %}rec-prio-high{% elif rec.priority == 'MEDIUM' %}rec-prio-medium{% else %}rec-prio-low{% endif %}">
+                                    {{ rec.priority }} PRIORITY
+                                </span>
+                                <h3 class="rec-card-title">{{ rec.title }}</h3>
+                            </div>
+                            <div class="rec-card-details">
+                                <div class="rec-detail-row">
+                                    <span class="rec-detail-label">Problem:</span>
+                                    <span>{{ rec.problem }}</span>
+                                </div>
+                                <div class="rec-detail-row">
+                                    <span class="rec-detail-label">Why It Matters:</span>
+                                    <span>{{ rec.why_it_matters }}</span>
+                                </div>
+                                <div class="rec-detail-row" style="margin-top: 0.25rem;">
+                                    <span class="rec-detail-label" style="color: var(--primary);">Action Plan:</span>
+                                    <span style="font-weight: 600;">{{ rec.action }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Job Evidence Matrix Table (Phase 8) -->
+            {% if result.evidence_analysis and result.evidence_analysis.job_evidence_matrix %}
+            <div class="card evidence-table-card">
+                <h2>Job Requirement Evidence Matrix</h2>
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Skill</th>
+                                <th>Requirement</th>
+                                <th>Match Status</th>
+                                <th>Evidence Strength</th>
+                                <th>Locations Found</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in result.evidence_analysis.job_evidence_matrix %}
+                            <tr>
+                                <td style="font-weight: 700;">{{ item.skill }}</td>
+                                <td>
+                                    <span style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">
+                                        {{ item.requirement_type }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if item.matched %}
+                                        <span style="color: var(--success-text); font-weight: 700;">✓ Matched</span>
+                                    {% else %}
+                                        <span style="color: var(--danger-text); font-weight: 700;">✕ Missing</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="strength-tag {% if item.evidence_strength == 'STRONG' %}strength-strong{% elif item.evidence_strength == 'MODERATE' %}strength-moderate{% elif item.evidence_strength == 'WEAK' %}strength-weak{% else %}strength-missing{% endif %}">
+                                        {{ item.evidence_strength }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="location-pills">
+                                        <span class="loc-pill {% if item.in_skills_section %}loc-pill-active{% endif %}">Skills</span>
+                                        <span class="loc-pill {% if item.in_experience %}loc-pill-active{% endif %}">Experience</span>
+                                        <span class="loc-pill {% if item.in_projects %}loc-pill-active{% endif %}">Projects</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Extracted Skills Tag Cloud -->
+            <div class="card">
+                <h2 style="font-size: 1.25rem; font-weight: 700;">Detected Technical Skills</h2>
+                <div class="skills-tag-cloud">
+                    {% if result.skills %}
+                        {% for skill in result.skills %}
+                            <span class="skill-chip">✓ {{ skill }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
+                            No recognized catalog skills extracted from document text.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% endif %}
+        </main>
+
+        <footer class="footer">
+            <p>Resume Analyzer App &bull; Phase 10 Production UI Redesign</p>
+        </footer>
+    </div>
+</body>
+</html>

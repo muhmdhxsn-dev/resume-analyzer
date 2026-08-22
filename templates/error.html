@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error {{ status_code | default(500) }} - Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-wrapper">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="{{ url_for('index') }}" class="nav-brand">
+                    <span class="brand-icon">📄</span>
+                    <span class="brand-name">Resume Analyzer</span>
+                </a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="card empty-state-card" style="margin-top: 2rem;">
+                <div class="empty-state-icon">⚠️</div>
+                <div style="display: inline-block; margin-bottom: 1rem;">
+                    <span class="score-verdict-badge badge-low" style="font-size: 0.85rem; padding: 0.3rem 0.8rem;">
+                        ERROR {{ status_code | default(500) }}
+                    </span>
+                </div>
+                
+                <h2>{{ error_title | default("Something went wrong") }}</h2>
+                <p style="max-width: 500px; margin: 0 auto 1.75rem;">
+                    {{ message | default("An unexpected error occurred while processing your request. Please check your document and try again.") }}
+                </p>
+
+                <div>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">
+                        Return to Upload Page
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Resume Analyzer App &bull; Production Readiness</p>
+        </footer>
+    </div>
+</body>
+</html>

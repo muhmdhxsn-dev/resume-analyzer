@@ -1,0 +1,10 @@
+{
+  "category": "Technology",
+  "skills": [
+    "Python", "Java", "JavaScript", "TypeScript", "C", "C++", "C#", "Go", "Rust", "PHP", "Ruby", "Swift", "Kotlin", "SQL", "HTML", "CSS", "Bash", "R", "Scala",
+    "Flask", "FastAPI", "Django", "React", "Angular", "Vue.js", "Node.js", "Express.js", "Next.js", "REST API", "GraphQL", "WebSockets", "Spring Boot",
+    "PostgreSQL", "MySQL", "SQLite", "MongoDB", "Redis", "Elasticsearch", "Firebase", "Firestore", "DynamoDB",
+    "Docker", "Kubernetes", "Git", "GitHub", "GitLab", "Linux", "AWS", "Azure", "GCP", "Terraform", "Ansible", "CI/CD", "Jenkins", "Nginx", "JIRA", "Postman",
+    "Machine Learning", "Deep Learning", "Data Science", "Natural Language Processing", "Computer Vision", "Pandas", "NumPy", "Scikit-learn", "TensorFlow", "PyTorch"
+  ]
+}

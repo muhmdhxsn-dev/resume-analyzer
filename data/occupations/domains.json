@@ -1,0 +1,38 @@
+[
+  {
+    "domain": "Software Engineering & IT",
+    "typical_roles": ["Software Engineer", "Full Stack Developer", "Backend Developer", "Frontend Developer", "DevOps Engineer", "Data Engineer", "Systems Architect"],
+    "keywords": ["developer", "software", "backend", "frontend", "fullstack", "programming", "code", "architecture", "database", "devops", "cloud", "api", "framework"],
+    "anchor_phrases": ["software engineering and system development", "building scalable web applications and REST APIs", "cloud infrastructure and CI/CD pipelines"]
+  },
+  {
+    "domain": "Finance & Accounting",
+    "typical_roles": ["Financial Analyst", "Staff Accountant", "Senior Accountant", "Auditor", "Controller", "Finance Manager", "Tax Specialist"],
+    "keywords": ["finance", "accounting", "auditing", "ledger", "balance sheet", "tax", "budgeting", "reconciliation", "financial statements", "accounts payable", "cash flow"],
+    "anchor_phrases": ["financial reporting and general ledger management", "budget forecasting and variance analysis", "preparing financial statements and tax filings"]
+  },
+  {
+    "domain": "Marketing & Sales",
+    "typical_roles": ["Marketing Manager", "Digital Marketer", "SEO Specialist", "Account Executive", "Sales Manager", "Content Strategist", "Brand Specialist"],
+    "keywords": ["marketing", "sales", "seo", "sem", "lead generation", "campaign", "conversion", "social media", "brand", "customer acquisition", "b2b", "prospecting"],
+    "anchor_phrases": ["digital marketing campaigns and lead generation", "customer acquisition and revenue growth", "seo optimization and content marketing strategy"]
+  },
+  {
+    "domain": "Healthcare & Medicine",
+    "typical_roles": ["Registered Nurse", "Nurse Practitioner", "Clinical Specialist", "Medical Assistant", "Patient Care Coordinator", "Physician Assistant"],
+    "keywords": ["nurse", "patient", "clinical", "triage", "medical", "hospital", "healthcare", "phlebotomy", "ehr", "hipaa", "medication", "vital signs", "care plan"],
+    "anchor_phrases": ["patient care assessment and clinical documentation", "medication administration and vital signs monitoring", "electronic health records and emergency triage"]
+  },
+  {
+    "domain": "Education & Teaching",
+    "typical_roles": ["Teacher", "Educator", "Curriculum Developer", "Instructional Designer", "Academic Counselor", "Professor", "Tutor"],
+    "keywords": ["teacher", "education", "classroom", "lesson plan", "curriculum", "student", "pedagogy", "grading", "instruction", "iep", "academic"],
+    "anchor_phrases": ["classroom management and lesson planning", "curriculum development and student assessment", "individualized education programs and pedagogy"]
+  },
+  {
+    "domain": "Human Resources & Administration",
+    "typical_roles": ["HR Manager", "Recruiter", "Talent Acquisition Specialist", "HR Generalist", "Administrative Assistant", "Office Manager"],
+    "keywords": ["hr", "human resources", "recruiting", "talent acquisition", "onboarding", "employee relations", "benefits", "payroll", "administration", "office management"],
+    "anchor_phrases": ["talent acquisition and recruitment onboarding", "employee relations and benefits administration", "office administration and personnel management"]
+  }
+]
