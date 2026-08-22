@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadCard.classList.add('hidden');
             loadingCard.classList.remove('hidden');
 
-            // Interactive step progression simulation
             const steps = [
                 document.getElementById('step1'),
                 document.getElementById('step2'),
@@ -153,6 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     clearInterval(interval);
                 }
             }, 600);
+        });
+    }
+
+    // Animate Category Progress Bars on Result Page
+    const catFills = document.querySelectorAll('.cat-bar-fill');
+    if (catFills.length > 0) {
+        catFills.forEach(fill => {
+            const targetWidth = fill.style.width;
+            fill.style.width = '0%';
+            setTimeout(() => {
+                fill.style.width = targetWidth;
+            }, 150);
         });
     }
 });

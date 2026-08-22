@@ -3,43 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Analysis Results - Resume Analyzer</title>
+    <title>Resume Analysis Results — Resume Analyzer AI</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Navigation Header -->
+        <!-- Sticky Navbar -->
         <nav class="navbar">
             <div class="nav-container">
                 <a href="{{ url_for('index') }}" class="nav-brand">
-                    <span class="brand-icon">📄</span>
+                    <div class="brand-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <path d="m9 15 2 2 4-4"/>
+                        </svg>
+                    </div>
                     <span class="brand-name">Resume Analyzer</span>
+                    <span class="brand-tag">AI PRO</span>
                 </a>
                 <ul class="nav-links">
-                    <li><a href="{{ url_for('index') }}" class="nav-btn">&larr; Analyze Another Resume</a></li>
+                    <li><a href="{{ url_for('index') }}" class="nav-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                        <span>Analyze Another Resume</span>
+                    </a></li>
                 </ul>
             </div>
         </nav>
 
         <main class="main-content">
             {% if not result or result.error %}
-                <!-- Empty or Error State Card -->
-                <div class="card empty-state-card">
-                    <div class="empty-state-icon">⚠️</div>
-                    <h2>Analysis Error</h2>
-                    <p>{{ result.error if result and result.error else "No resume data available. Please upload a resume to view analysis results." }}</p>
-                    <a href="{{ url_for('index') }}" class="btn btn-primary">Upload Resume</a>
+                <!-- Error / Empty State Card -->
+                <div class="card" style="text-align: center; padding: 4rem 2rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Analysis Error</h2>
+                    <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem;">
+                        {{ result.error if result and result.error else "No resume data available. Please upload a resume document to generate analysis." }}
+                    </p>
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Upload Resume Document</a>
                 </div>
             {% else %}
 
             <!-- Results Dashboard Header -->
             <div class="dashboard-header">
                 <div class="dashboard-title-group">
-                    <h1>Resume Analysis</h1>
-                    <p class="dashboard-subtitle">Here's how your resume performs across quality, structure, and job requirements.</p>
+                    <h1>Resume Intelligence Report</h1>
+                    <p class="dashboard-subtitle">Executive audit evaluating quality, impact, skill evidence, and job description alignment.</p>
                     <div class="dashboard-meta-pills">
                         <span class="meta-pill">📄 {{ result.filename }}</span>
                         <span class="meta-pill">FORMAT: {{ result.file_type | upper }}</span>
@@ -49,11 +61,14 @@
                     </div>
                 </div>
                 <div>
-                    <a href="{{ url_for('index') }}" class="btn btn-secondary">&larr; Upload New Resume</a>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                        <span>Upload New Resume</span>
+                    </a>
                 </div>
             </div>
 
-            <!-- Scores Hero Grid (Quality Score + Job Match Score + Evidence Rating) -->
+            <!-- Triple Score Hero Grid (Quality + Job Match + Evidence Strength) -->
             <div class="scores-hero-grid">
                 <!-- Quality Score Card -->
                 <div class="score-card-primary">
@@ -75,7 +90,7 @@
                     </div>
                     <div class="score-info-box">
                         <h3>Resume Quality Score</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Structure, impact, & formatting score</p>
+                        <p style="font-size: 0.825rem; color: var(--text-muted); margin-top: 0.15rem;">Structure, impact, & formatting score</p>
                         <span class="score-verdict-badge {% if score >= 80 %}badge-high{% elif score >= 60 %}badge-mid{% else %}badge-low{% endif %}">
                             {% if score >= 80 %}
                                 🎯 Strong Resume
@@ -108,10 +123,10 @@
                     </div>
                     <div class="score-info-box">
                         <h3>Job Match Score</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Alignment with job description</p>
+                        <p style="font-size: 0.825rem; color: var(--text-muted); margin-top: 0.15rem;">Target role alignment</p>
                         <span class="score-verdict-badge {% if match_score >= 80 %}badge-high{% elif match_score >= 50 %}badge-mid{% else %}badge-low{% endif %}">
                             {% if match_score >= 80 %}
-                                🎯 Excellent Match
+                                🎯 High Alignment
                             {% elif match_score >= 50 %}
                                 ⚖️ Moderate Match
                             {% else %}
@@ -142,7 +157,7 @@
                     </div>
                     <div class="score-info-box">
                         <h3>Skill Evidence Analysis</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Skill application depth</p>
+                        <p style="font-size: 0.825rem; color: var(--text-muted); margin-top: 0.15rem;">Skill application depth & proof</p>
                         <span class="score-verdict-badge {% if ev_score >= 80 %}badge-high{% elif ev_score >= 50 %}badge-mid{% else %}badge-low{% endif %}">
                             {% if ev_score >= 80 %}
                                 🟢 Strong Proof
@@ -160,14 +175,20 @@
             <!-- Executive Summary Highlight (If summary section exists) -->
             {% if result.sections and result.sections['summary'] %}
             <div class="summary-quote-card">
-                <div class="summary-quote-header">Executive Summary Preview</div>
-                <div class="summary-quote-text">"{{ result.sections['summary'] | truncate(280) }}"</div>
+                <div class="summary-quote-header">Executive Profile Overview</div>
+                <div class="summary-quote-text">"{{ result.sections['summary'] | truncate(320) }}"</div>
             </div>
             {% endif %}
 
             <!-- Category Score Breakdown Grid -->
             <div class="card category-breakdown-card">
-                <h2>Category Score Breakdown</h2>
+                <div class="card-header-styled" style="margin-bottom: 1rem;">
+                    <h2 class="card-title-styled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary);"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        Category Score Breakdown
+                    </h2>
+                    <p class="card-subtitle-styled">Detailed 8-category evaluation breakdown across essential resume sections.</p>
+                </div>
                 <div class="category-bars-grid">
                     {% if result.analysis and result.analysis.categories %}
                         {% for cat_key, cat_data in result.analysis.categories.items() %}
@@ -186,12 +207,13 @@
                 </div>
             </div>
 
-            <!-- Strengths & Areas to Improve Grid -->
+            <!-- Key Strengths & Priority Improvements Grid -->
             <div class="feedback-grid">
                 <!-- Strengths Card -->
                 <div class="card feedback-card">
                     <h3 style="color: var(--success-text);">
-                        <span>✓</span> Key Resume Strengths
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--success);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        Key Resume Strengths
                     </h3>
                     <ul class="feedback-list feedback-strengths">
                         {% if result.analysis and result.analysis.strengths %}
@@ -207,7 +229,8 @@
                 <!-- Areas to Improve Card -->
                 <div class="card feedback-card">
                     <h3 style="color: var(--warning-text);">
-                        <span>⚠️</span> Priority Improvements
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--warning);"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Priority Improvements
                     </h3>
                     <ul class="feedback-list feedback-warnings">
                         {% if result.analysis and result.analysis.warnings %}
@@ -221,10 +244,16 @@
                 </div>
             </div>
 
-            <!-- Prioritized Actionable Improvement Plan (Phase 7 & 8 Recommendations) -->
+            <!-- Prioritized Action Plan -->
             {% if result.recommendation_plan and result.recommendation_plan.all_recommendations %}
             <div class="card">
-                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem;">Actionable Recommendation Plan</h2>
+                <div class="card-header-styled">
+                    <h2 class="card-title-styled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary);"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/></svg>
+                        Actionable Recommendation Plan
+                    </h2>
+                    <p class="card-subtitle-styled">Prioritized action steps designed to improve your resume score & recruiter response rate.</p>
+                </div>
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     {% for rec in result.recommendation_plan.all_recommendations %}
                         <div class="card rec-card-item {% if rec.priority == 'HIGH' %}rec-card-high{% elif rec.priority == 'MEDIUM' %}rec-card-medium{% else %}rec-card-low{% endif %}">
@@ -245,7 +274,7 @@
                                 </div>
                                 <div class="rec-detail-row" style="margin-top: 0.25rem;">
                                     <span class="rec-detail-label" style="color: var(--primary);">Action Plan:</span>
-                                    <span style="font-weight: 600;">{{ rec.action }}</span>
+                                    <span style="font-weight: 700; color: var(--text-main);">{{ rec.action }}</span>
                                 </div>
                             </div>
                         </div>
@@ -254,10 +283,16 @@
             </div>
             {% endif %}
 
-            <!-- Job Evidence Matrix Table (Phase 8) -->
+            <!-- Job Evidence Matrix Table -->
             {% if result.evidence_analysis and result.evidence_analysis.job_evidence_matrix %}
             <div class="card evidence-table-card">
-                <h2>Job Requirement Evidence Matrix</h2>
+                <div class="card-header-styled" style="margin-bottom: 0;">
+                    <h2 class="card-title-styled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                        Job Requirement Evidence Matrix
+                    </h2>
+                    <p class="card-subtitle-styled">Verification of required vs preferred target job skills across resume sections.</p>
+                </div>
                 <div class="table-responsive">
                     <table class="custom-table">
                         <thead>
@@ -272,9 +307,9 @@
                         <tbody>
                             {% for item in result.evidence_analysis.job_evidence_matrix %}
                             <tr>
-                                <td style="font-weight: 700;">{{ item.skill }}</td>
+                                <td style="font-weight: 700; color: var(--text-main);">{{ item.skill }}</td>
                                 <td>
-                                    <span style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">
+                                    <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">
                                         {{ item.requirement_type }}
                                     </span>
                                 </td>
@@ -307,15 +342,20 @@
 
             <!-- Extracted Skills Tag Cloud -->
             <div class="card">
-                <h2 style="font-size: 1.25rem; font-weight: 700;">Detected Technical Skills</h2>
+                <div class="card-header-styled" style="margin-bottom: 0.5rem;">
+                    <h2 class="card-title-styled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: var(--primary);"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z"/></svg>
+                        Extracted Technical & Domain Skills
+                    </h2>
+                </div>
                 <div class="skills-tag-cloud">
                     {% if result.skills %}
                         {% for skill in result.skills %}
                             <span class="skill-chip">✓ {{ skill }}</span>
                         {% endfor %}
                     {% else %}
-                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">
-                            No recognized catalog skills extracted from document text.
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">
+                            No catalog skills extracted from document text.
                         </p>
                     {% endif %}
                 </div>
@@ -325,7 +365,7 @@
         </main>
 
         <footer class="footer">
-            <p>Resume Analyzer App &bull; Phase 10 Production UI Redesign</p>
+            <p>Resume Analyzer AI &bull; Production SaaS Interface &bull; Private & Ephemeral Document Processing</p>
         </footer>
     </div>
 </body>
