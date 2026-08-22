@@ -250,3 +250,19 @@ def test_vercel_max_content_length_limit(monkeypatch):
     monkeypatch.delenv("MAX_CONTENT_LENGTH", raising=False)
     app_local = create_app()
     assert app_local.config["MAX_CONTENT_LENGTH"] == 16 * 1024 * 1024
+
+
+def test_static_css_is_served(client):
+    """Verify static CSS stylesheet endpoint returns HTTP 200 with text/css Content-Type."""
+    response = client.get("/static/css/style.css")
+    assert response.status_code == 200
+    assert "text/css" in response.headers.get("Content-Type", "")
+    assert b"font-family" in response.data or b"root" in response.data
+
+
+def test_static_js_is_served(client):
+    """Verify static JavaScript endpoint returns HTTP 200 with text/javascript Content-Type."""
+    response = client.get("/static/js/app.js")
+    assert response.status_code == 200
+    assert "javascript" in response.headers.get("Content-Type", "").lower()
+    assert b"addEventListener" in response.data or b"document" in response.data
