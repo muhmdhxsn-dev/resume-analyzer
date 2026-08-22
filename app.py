@@ -2,6 +2,7 @@ import os
 import time
 import uuid
 import logging
+import tempfile
 from collections import defaultdict
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from dotenv import load_dotenv
@@ -50,9 +51,10 @@ def create_app(test_config=None):
 
     # Configuration loading from environment variables
     env_debug = os.getenv("FLASK_DEBUG", "0").lower() in ("1", "true", "yes")
+    default_upload_dir = tempfile.gettempdir() if os.getenv("VERCEL") else os.path.join(app.root_path, "uploads")
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", "dev-secret-key-resume-analyzer"),
-        UPLOAD_FOLDER=os.getenv("UPLOAD_FOLDER", os.path.join(app.root_path, "uploads")),
+        UPLOAD_FOLDER=os.getenv("UPLOAD_FOLDER", default_upload_dir),
         MAX_CONTENT_LENGTH=int(os.getenv("MAX_CONTENT_LENGTH", 16 * 1024 * 1024)),  # 16 MB max limit
         DEBUG=env_debug
     )
@@ -60,8 +62,12 @@ def create_app(test_config=None):
     if test_config:
         app.config.update(test_config)
 
-    # Ensure upload directory exists
-    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    # Ensure upload directory exists safely
+    try:
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    except OSError:
+        app.config["UPLOAD_FOLDER"] = tempfile.gettempdir()
+        os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
     @app.route("/", methods=["GET"])
     def index():
