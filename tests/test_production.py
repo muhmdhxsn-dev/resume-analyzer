@@ -197,3 +197,41 @@ def test_embedding_lru_cache_behavior():
     stats2 = embedding_service.get_cache_stats()
     assert stats2["hits"] == 1
     assert emb1 == emb2
+
+
+def test_vercel_runtime_detection_and_fallback(monkeypatch):
+    """Verify VERCEL=1 env var forces lightweight Jaccard fallback mode cleanly."""
+    from services.nlp import embedding_service
+    embedding_service._MODEL_LOAD_ATTEMPTED = False
+    embedding_service._MODEL_INSTANCE = None
+    embedding_service._IS_MODEL_AVAILABLE = False
+
+    monkeypatch.setenv("VERCEL", "1")
+
+    assert embedding_service.is_available() is False
+    sim = embedding_service.similarity("python developer", "python engineer")
+    assert 0.0 <= sim <= 1.0
+
+    embedding_service._MODEL_LOAD_ATTEMPTED = False
+    embedding_service._MODEL_INSTANCE = None
+    embedding_service._IS_MODEL_AVAILABLE = False
+
+
+def test_health_endpoint_vercel_fallback(client, monkeypatch):
+    """Verify GET /health reports nlp: fallback when VERCEL environment variable is set."""
+    from services.nlp import embedding_service
+    embedding_service._MODEL_LOAD_ATTEMPTED = False
+    embedding_service._MODEL_INSTANCE = None
+    embedding_service._IS_MODEL_AVAILABLE = False
+
+    monkeypatch.setenv("VERCEL", "1")
+
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["status"] == "healthy"
+    assert data["nlp"] == "fallback"
+
+    embedding_service._MODEL_LOAD_ATTEMPTED = False
+    embedding_service._MODEL_INSTANCE = None
+    embedding_service._IS_MODEL_AVAILABLE = False

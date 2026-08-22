@@ -36,12 +36,21 @@ def _load_model():
     """
     Lazy loader for sentence-transformers model.
     Catches any import or initialization failure cleanly without crashing process.
+    On Vercel environment, bypasses model loading to run lightweight Jaccard fallback mode.
     """
     global _MODEL_INSTANCE, _MODEL_LOAD_ATTEMPTED, _IS_MODEL_AVAILABLE
     if _MODEL_LOAD_ATTEMPTED:
         return _MODEL_INSTANCE
 
     _MODEL_LOAD_ATTEMPTED = True
+
+    # Detect Vercel serverless environment
+    if os.getenv("VERCEL"):
+        logger.info("Vercel runtime environment detected. Bypassing SentenceTransformer model load; running lightweight Jaccard fallback mode.")
+        _MODEL_INSTANCE = None
+        _IS_MODEL_AVAILABLE = False
+        return None
+
     model_name, _ = _get_config()
 
     try:
